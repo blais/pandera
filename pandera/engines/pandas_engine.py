@@ -777,15 +777,16 @@ class DateTime(_BaseDateTime, dtypes.Timestamp):
     )
     unit: str = "ns"
     """The precision of the datetime data. Currently limited to "ns"."""
-    tz: Optional[datetime.tzinfo] = None
-    """The timezone."""
+    tz: Union[datetime.tzinfo, bool, None] = None
+    """The timezone. It can be None for "no timezone", a `tzinfo` for a valid
+    timezone, or `True` to indicate any timezone."""
     to_datetime_kwargs: Dict[str, Any] = dataclasses.field(
         default_factory=dict, compare=False, repr=False
     )
     "Any additional kwargs passed to :func:`pandas.to_datetime` for coercion."
 
     def __post_init__(self):
-        if self.tz is None:
+        if self.tz is None or self.tz is True:
             type_ = np.dtype("datetime64[ns]")
         else:
             type_ = pd.DatetimeTZDtype(self.unit, self.tz)
